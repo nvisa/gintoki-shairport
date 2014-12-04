@@ -96,8 +96,16 @@ static void play(short buf[], int samples) {
         return;
     }
 
-    if (write(fd, buf, samples*4) < 0)
-        stop();
+		int i = 0;
+		int len = samples*4;
+		while (i < len) {
+			int r = write(fd, (void *)buf + i, len - i);
+			if (r < 0) {
+				stop();
+				break;
+			}
+			i += r;
+		}
 }
 
 static int init(int argc, char **argv) {

@@ -1,19 +1,19 @@
 #!/bin/sh
 
+[ -z "${ARCH}" ] && ARCH=linux
 [ -z "${CC}" ] && CC=gcc
 
 echo Configuring Shairport
 
-rm -f config.mk config.h
+config_mk=config-${ARCH}.mk
 
-echo "// automatically generated file" > config.h
+rm -f $config_mk 
 
 LDFLAGS="${LDFLAGS} -lm -lpthread"
 
 export_config()
 {
-    echo "#define $1" >> config.h
-    echo "$1=yes" >> config.mk
+    echo "$1=yes" >> $config_mk
     eval "$1=yes"
 }
 
@@ -31,7 +31,7 @@ check_header()
         if [ ! "$2" ]; then
             echo "Required header not found, cannot continue"
             rm .header_test.c
-            rm -f config.mk config.h
+            rm -f $config_mk 
             exit 1
         fi
     fi
@@ -53,7 +53,7 @@ do_pkg_config()
         echo "$1 or its dev package not found"
         if [ ! "$3" ]; then
             echo "Required package not found, cannot continue"
-            rm -f config.mk config.h
+            rm -f $config_mk 
             exit 1
         fi
     fi
@@ -79,10 +79,11 @@ if [ -z "$CONFIG_AVAHI" ]; then
 fi
 
 
-echo "CFLAGS+=${CFLAGS}" >> config.mk
-echo "LDFLAGS+=${LDFLAGS}" >> config.mk
+echo "CFLAGS+=${CFLAGS}" >> $config_mk
+echo "LDFLAGS+=${LDFLAGS}" >> $config_mk
 
 echo CFLAGS: ${CFLAGS}
 echo LDFLAGS: ${LDFLAGS}
 
 echo "Configure successful. You may now build with 'make'"
+

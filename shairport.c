@@ -39,9 +39,7 @@
 #include "getopt_long.h"
 #include "metadata.h"
 
-static const char *version =
-    #include "version.h"
-    ;
+static const char *version = VERSION;
 
 static void log_setup();
 
