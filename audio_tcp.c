@@ -57,7 +57,7 @@ static void deinit(void) {
 }
 
 static void do_connect() {
-	printf("connect %s:%d\n", arg_host, arg_port);
+	fprintf(stderr, "connect %s:%d\n", arg_host, arg_port);
 
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1) {
@@ -74,14 +74,16 @@ static void do_connect() {
 		die("connect %s:%d failed", arg_host, arg_port);
 	}
 
+	/*
 	int v = 1024*2;
 	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (const char *)&v, sizeof(v))) {
 		die("setsockopt SO_SNDBUF failed");
 	}
+	*/
 }
 
 static void do_close() {
-	printf("diconnected\n");
+	fprintf(stderr, "diconnected\n");
 	shutdown(fd, SHUT_RDWR);
 	close(fd);
 }
@@ -95,11 +97,14 @@ static void start(int sample_rate) {
 }
 
 static void play(short buf[], int samples) {
-	printf("samples=%d\n", samples);
+	fprintf(stderr, "samples=%d\n", samples);
+
 	int r = send(fd, buf, samples*4, 0);
-	printf("r=%d\n", r);
-	if (r == -1)
-		abort();
+	fprintf(stderr, "r=%d\n", r);
+	if (r != samples*4) {
+		do_close();
+		return;
+	}
 
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
@@ -111,7 +116,7 @@ static void play(short buf[], int samples) {
 	long long finishtime = starttime + samples_played * 1e6 / 44100.0;
 	long long sleeptime = finishtime - nowtime - (long long)(1e6 * 1);
 
-	printf("sleep %.lf ms\n", sleeptime/1e3);
+	fprintf(stderr, "sleep %.lf ms\n", sleeptime/1e3);
 	if (sleeptime > 0)
 		usleep(sleeptime);
 }

@@ -111,7 +111,7 @@ static void start(int sample_rate) {
 }
 
 static void play(short buf[], int samples) {
-	printf("samples=%d\n", samples);
+//	printf("samples=%d\n", samples);
     ao_play(dev, (char*)buf, samples*4);
 }
 
